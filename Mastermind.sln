@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mastermind.Web", "Mastermind\Mastermind.Web.csproj", "{D266244D-F19A-48E0-9DE9-B39630AF56CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mastermind.Game", "Mastermind.Game\Mastermind.Game.csproj", "{40AFF6DA-FB12-4E08-A415-BFE175446F11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FAD7DEC1-05A4-46B2-B5FC-5B5A83A3F6E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D266244D-F19A-48E0-9DE9-B39630AF56CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D266244D-F19A-48E0-9DE9-B39630AF56CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D266244D-F19A-48E0-9DE9-B39630AF56CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D266244D-F19A-48E0-9DE9-B39630AF56CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40AFF6DA-FB12-4E08-A415-BFE175446F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40AFF6DA-FB12-4E08-A415-BFE175446F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40AFF6DA-FB12-4E08-A415-BFE175446F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40AFF6DA-FB12-4E08-A415-BFE175446F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAD7DEC1-05A4-46B2-B5FC-5B5A83A3F6E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD7DEC1-05A4-46B2-B5FC-5B5A83A3F6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD7DEC1-05A4-46B2-B5FC-5B5A83A3F6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD7DEC1-05A4-46B2-B5FC-5B5A83A3F6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

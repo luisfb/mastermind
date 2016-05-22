@@ -1,0 +1,264 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+@section scripts{
+    <script>
+        var Ajax = {
+            Post: function(url, data, callback, multiplayerLabel) {
+                $.ajax({
+                    url: url,
+                    data: data,
+                    type: "POST",
+                    dataType: "json",
+                    timeout: 120000,
+                    success: callback,
+                    beforeSend: function() {
+                        $('.ajax-loader').show();
+                        if (multiplayerLabel)
+                            $('.multiplayer-label').show();
+                    },
+                    complete: function() {
+                        $('.ajax-loader').hide();
+                        if (multiplayerLabel)
+                            $('.multiplayer-label').hide();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        if (textStatus === "timeout") {
+                            alert("Your opponent has quit the match!");
+                        } else {
+                            alert("An error occurred while processing your request.");
+                        }
+                    }
+                });
+            }
+        };
+
+        var Game = function() {
+            var me = this;
+            this.gameKey = "";
+            this.isMultiplayer = false;
+            this.startNewGame = function (username, guess, multiplayer, hostPlayer) {
+                Ajax.Post('/new_game', { user: username, multiplayer: multiplayer, hostPlayer: hostPlayer }, function (r) {
+                    if (r.error) {
+                        alert(r.error);
+                        return;
+                    }
+                    me.gameKey = r.game_key;
+                    me.isMultiplayer = r.multiplayer;
+                    if (multiplayer)
+                        alert("Game session started! Share your user name with somebody be challenged, then click \"Submit guess\" again.");
+                    else
+                        me.newGuess(guess);
+                });
+            };
+            this.newGuess = function(guess) {
+                Ajax.Post('/guess', { game_key: this.gameKey, code: guess }, function(r) {
+                    if (r.error) {
+                        alert(r.error);
+                        return;
+                    }
+                    fillInTheResponseCircles(r.result.exact, r.result.near);
+                    removeDropdownMenuFromSubmittedGuess();
+                    if (r.solved) {
+                        if (!me.isMultiplayer) {
+                            alert("Congratulations! You solved the sequence in " + r.num_guesses + " attempts.");
+                        } else {
+                            alert("The winner of the match is " + r.winner);
+                        }
+                    } else {
+                        insertNewRow();
+                    }
+                }, this.isMultiplayer);
+            };
+
+        };
+
+        function removeDropdownMenuFromSubmittedGuess() {
+            $('.right-menu').remove();
+        }
+
+        function fillInTheResponseCircles(exact, near) {
+            $('.div-response:first .little-circle').each(function() {
+                if (exact > 0) {
+                    $(this).addClass('exact');
+                    exact--;
+                } else if (near > 0) {
+                    $(this).addClass('near');
+                    near--;
+                }
+            });
+        }
+
+        var rowComponent;
+
+        function insertNewRow() {
+            $('.btn-submit-guess').remove();
+            $('.ajax-loader').remove();
+            $('.multiplayer-label').remove();
+            $('#game-container').prepend(rowComponent.clone(true, true));
+        }
+
+        var currentGame = null;
+
+        $(function() {
+
+            //creates the first row of color buttons
+            for (var i = 0; i < 7; i++) {
+                var button = $('.button-color:first').clone();
+                $('.button-color-container').append(button);
+            }
+
+            //add the event for selecting colors for each color button
+            $('.color-option').on('click', function() {
+                var colorbutton = $(this).clone().removeClass('color-option').addClass('selected-color');
+                $(this).parents('.button-color').find('a:first').html('').append(colorbutton);
+            });
+
+            $('.btn-submit-guess').on('click', function() {
+                var playerName = $('#input-player-name').val().trim();
+                if (!playerName) {
+                    alert("Please provide a player name.");
+                    return;
+                }
+
+                var guess = "";
+                $(this).parents('.guess-container').find('.selected-color').each(function() {
+                    guess += $(this).attr('data-color');
+                });
+
+                if (!currentGame || !currentGame.gameKey) {
+                    currentGame = new Game();
+                    currentGame.startNewGame(playerName, guess, $('#multiplayer').is(':checked'), $('#input-host-player-name').val());
+                } else {
+                    currentGame.newGuess(guess);
+                }
+            });
+
+            //clone the row element and its child elements with their events, so it can be used later to add new rows
+            rowComponent = $('.guess-container').clone(true, true);
+        });
+    </script>
+}
+
+<style>
+.circle, .little-circle {
+  display: block;
+  background: #eee;
+  border-radius: 50%;
+  height: 35px;
+  width: 35px;
+  margin: 2px 5px 0 0;
+  float: left;
+}
+.little-circle {
+    height: 18px;
+    width: 18px;
+}
+.color-option{cursor: pointer;}
+
+div.red {background: radial-gradient(circle at 10px 10px, #f00, #500);}
+div.blue {background: radial-gradient(circle at 10px 10px, #44f, #005);}
+div.green {background: radial-gradient(circle at 10px 10px, #0d0, #050);}
+div.yellow {background: radial-gradient(circle at 10px 10px, #ff0, #550);}
+div.orange {background: radial-gradient(circle at 10px 10px, #ffa500, #540);}
+div.purple {background: radial-gradient(circle at 10px 10px, #885EAD, #551A8B);}
+div.cyan {background: radial-gradient(circle at 10px 10px, #0ff, #055);}
+div.magenta {background: radial-gradient(circle at 10px 10px, #f0f, #505);}
+
+div.exact {background: #f00; border: solid #000 1px;}
+div.near {background: #aaa;  border: solid #000 1px;}
+div.unselected {background: #ddd; border: dashed #000 1px;}
+
+.div-response {margin-top: 4px;}
+
+.div-guess {
+    width: 100%;
+    height: 35px;
+    margin-top: 2px;
+    padding-left: 4px;
+}
+
+
+.right-menu {
+    position:absolute;
+    top: 0;
+    left: 40px;
+    width: 170px;
+    float:right;
+}
+.right
+{
+    float:right;
+}
+
+.btn-circle {-webkit-box-shadow: none !important;box-shadow: none !important;}
+.btn-submit-guess{margin-top: 8px;}
+.guess-container{ border-top: 1px solid #ddd;border-bottom: 1px solid #ddd; }
+.button-color {position: relative; width: 50px;float: left;}
+</style>
+
+<div class="row">
+    <h1>Mastermind Back-End Implementation (Demo page)</h1>
+    <h3>This webservice was developed during the 2016 VanHackaton.</h3>
+    <h4>This page is just a testing page for the Mastermind Web API (the back-end challenge).</h4>
+    <p>Use the interface bellow to test the API.</p>
+
+    <div class="input-group" style="margin-bottom: 8px;">
+        <span class="input-group-addon" id="basic-addon3">Player name:</span>
+        <input type="text" class="form-control" id="input-player-name" aria-describedby="basic-addon3">
+
+        <span class="input-group-addon" id="basic-addon3">Host player name (to join a multiplayer game):</span>
+        <input type="text" class="form-control" id="input-host-player-name" aria-describedby="basic-addon3">
+    </div>
+    <div class="checkbox">
+        <label><input type="checkbox" id="multiplayer">Start new multiplayer game</label>
+    </div>
+</div>
+
+<div id="game-container">
+
+    <div class="row guess-container">
+        <div class="col-xs-7 button-color-container">
+            <div class="button-color">
+                <a class="btn btn-link dropdown-toggle btn-circle" data-toggle="dropdown" href="#">
+                    <div class="circle unselected"></div>
+                </a>
+                <ul class="dropdown-menu right-menu">
+                    <li>
+                        <div class="div-guess">
+                            <div data-color="R" class="circle red color-option"></div>
+                            <div data-color="B" class="circle blue color-option"></div>
+                            <div data-color="G" class="circle green color-option"></div>
+                            <div data-color="Y" class="circle yellow color-option"></div>
+                            <div data-color="O" class="circle orange color-option"></div>
+                            <div data-color="P" class="circle purple color-option"></div>
+                            <div data-color="C" class="circle cyan color-option"></div>
+                            <div data-color="M" class="circle magenta color-option"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-xs-3">
+            <p class="multiplayer-label" style="display: none; margin: 0; font-size: 12px;">Waiting for opponent's move.</p>
+            <img src="/Content/ajax-loader.gif" style="display: none;" class="ajax-loader"/>
+            <button type="button" class="btn btn-primary btn-submit-guess">Submit guess</button>
+        </div>
+
+        <div class="col-xs-2">
+            <div class="div-response">
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+                <div class="little-circle"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
